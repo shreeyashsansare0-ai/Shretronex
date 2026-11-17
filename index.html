@@ -1,0 +1,72 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#080b12">
+  <meta name="description" content="SHRETRONX - Personal Futuristic AI Assistant">
+  <title>SHRETRONX | AI Command Centre</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-icon">S</div>
+        <div>
+          <h1>SHRETRONX</h1>
+          <span>PERSONAL AI SYSTEM · V1.0</span>
+        </div>
+      </div>
+      <button class="icon-btn" id="settingsBtn" aria-label="Settings">⚙</button>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="status"><span class="pulse"></span> SYSTEM ONLINE</div>
+        <div class="core">S</div>
+        <h2>Welcome, Commander.</h2>
+        <p>Your personal intelligence interface is ready.</p>
+        <button class="primary-btn" id="startBtn">INITIALIZE SHRETRONX</button>
+      </section>
+
+      <section class="command-panel">
+        <h3>COMMAND CONSOLE</h3>
+        <div class="command-input">
+          <input id="commandInput" type="text" placeholder="Enter a command...">
+          <button id="sendBtn">➤</button>
+        </div>
+        <p id="response">Awaiting your command.</p>
+      </section>
+
+      <section class="grid">
+        <button class="tile" data-page="voice"><span>🎙️</span><b>Voice System</b><small>Voice interface</small></button>
+        <button class="tile" data-page="knowledge"><span>◈</span><b>AI Knowledge</b><small>Knowledge centre</small></button>
+        <button class="tile" data-page="devices"><span>▣</span><b>Devices</b><small>Connection centre</small></button>
+        <button class="tile" data-page="tools"><span>⚡</span><b>AI Tools</b><small>Tools dashboard</small></button>
+        <button class="tile" data-page="language"><span>文</span><b>Languages</b><small>Language settings</small></button>
+        <button class="tile" data-page="privacy"><span>⬡</span><b>Privacy</b><small>Security centre</small></button>
+      </section>
+
+      <section class="info-panel">
+        <h3>SYSTEM OVERVIEW</h3>
+        <div class="info-row"><span>Interface</span><b>ACTIVE</b></div>
+        <div class="info-row"><span>AI connection</span><b>NOT CONNECTED</b></div>
+        <div class="info-row"><span>Device sync</span><b>NOT CONNECTED</b></div>
+        <div class="info-row"><span>Version</span><b>1.0.0</b></div>
+      </section>
+
+      <section id="pagePanel" class="page-panel" hidden>
+        <button id="backBtn" class="back-btn">← BACK</button>
+        <h2 id="pageTitle"></h2>
+        <div id="pageContent"></div>
+      </section>
+    </main>
+
+    <footer>SHRETRONX © 2026 · BUILT FOR THE FUTURE</footer>
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>
