@@ -193,7 +193,13 @@ $("startBtn").addEventListener("click", () => {
 });
 
 if ("speechSynthesis" in window) {
-  speechSynthesis.onvoiceschanged = () => {
+  speechSynthesis.onvoiceschanged = () => {if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./sw.js")
+      .then(() => console.log("SHRETRONX offline support ready"))
+      .catch((error) => console.error("Service worker error:", error));
+  });
+}
     // Voice list becomes available when the browser loads it.
   };
 }
