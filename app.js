@@ -4,19 +4,19 @@ const $ = (id) => document.getElementById(id);
 const pages = {
   voice: {
     title: "VOICE SYSTEM",
-    content: "Voice interface preview. Microphone and speech features will be configured in a later stage."
+    content: "SHRETRONX voice assistant"
   },
   knowledge: {
     title: "AI KNOWLEDGE",
-    content: "AI knowledge connection is not configured yet. A secure AI service will be needed."
+    content: "AI connection is not configured yet."
   },
   devices: {
     title: "DEVICE CONNECTION",
-    content: "Android and Windows device pairing will be added in a later stage."
+    content: "Device pairing will be added later."
   },
   tools: {
     title: "AI TOOLS",
-    content: "Your future tools dashboard. Features will be activated in later development stages."
+    content: "Your AI tools dashboard."
   },
   language: {
     title: "LANGUAGE SETTINGS",
@@ -24,13 +24,40 @@ const pages = {
   },
   privacy: {
     title: "PRIVACY CENTRE",
-    content: "Manage microphone permissions, device access and privacy settings here."
+    content: "Microphone permission is requested only when you start listening."
   },
   settings: {
     title: "SYSTEM SETTINGS",
-    content: "Personalize your SHRETRONX experience."
+    content: "Personalize SHRETRONX."
   }
 };
+
+const getLanguage = () => localStorage.getItem("shreyLanguage") || "en";
+
+const speechLanguage = () => ({
+  hi: "hi-IN",
+  mr: "mr-IN",
+  en: "en-IN",
+  hinglish: "hi-IN"
+}[getLanguage()] || "en-IN");
+
+function speak(message) {
+  if (!("speechSynthesis" in window)) return;
+
+  const utterance = new SpeechSynthesisUtterance(message);
+  utterance.lang = speechLanguage();
+  utterance.rate = Number(localStorage.getItem("shreySpeed") || 1);
+
+  const voices = speechSynthesis.getVoices();
+  const selected = localStorage.getItem("shreyVoice");
+
+  if (selected !== null && selected !== "") {
+    utterance.voice = voices[Number(selected)] || null;
+  }
+
+  speechSynthesis.cancel();
+  speechSynthesis.speak(utterance);
+}
 
 function openPage(name) {
   const page = pages[name];
@@ -43,9 +70,26 @@ function openPage(name) {
   paragraph.textContent = page.content;
   $("pageContent").appendChild(paragraph);
 
+  if (name === "voice") {
+    const status = document.createElement("p");
+    status.id = "micStatus";
+    status.textContent = "Microphone ready. Tap below to speak.";
+
+    const listen = document.createElement("button");
+    listen.textContent = "🎙️ START LISTENING";
+    listen.className = "primary-btn";
+    listen.addEventListener("click", startListening);
+
+    const stop = document.createElement("button");
+    stop.textContent = "STOP LISTENING";
+    stop.className = "back-btn";
+    stop.addEventListener("click", stopListening);
+
+    $("pageContent").append(status, listen, stop);
+  }
+
   if (name === "language") {
     const select = document.createElement("select");
-    select.id = "languageSelect";
 
     [
       ["en", "English"],
@@ -59,7 +103,7 @@ function openPage(name) {
       select.appendChild(option);
     });
 
-    select.value = localStorage.getItem("shreyLanguage") || "en";
+    select.value = getLanguage();
     select.addEventListener("change", () => {
       localStorage.setItem("shreyLanguage", select.value);
     });
@@ -72,16 +116,12 @@ function openPage(name) {
     label.textContent = "Assistant voice: ";
 
     const select = document.createElement("select");
-    select.id = "voiceSelect";
+    const voices = speechSynthesis.getVoices();
 
-    const voices = window.speechSynthesis
-      ? window.speechSynthesis.getVoices()
-      : [];
-
-    const defaultOption = document.createElement("option");
-    defaultOption.value = "";
-    defaultOption.textContent = "Choose a voice";
-    select.appendChild(defaultOption);
+    const first = document.createElement("option");
+    first.value = "";
+    first.textContent = "Choose a voice";
+    select.appendChild(first);
 
     voices.forEach((voice, index) => {
       const option = document.createElement("option");
@@ -97,22 +137,6 @@ function openPage(name) {
 
     label.appendChild(select);
     $("pageContent").appendChild(label);
-
-    const speedLabel = document.createElement("p");
-    speedLabel.textContent = "Speech speed";
-
-    const speed = document.createElement("input");
-    speed.type = "range";
-    speed.min = "0.7";
-    speed.max = "1.4";
-    speed.step = "0.1";
-    speed.value = localStorage.getItem("shreySpeed") || "1";
-
-    speed.addEventListener("input", () => {
-      localStorage.setItem("shreySpeed", speed.value);
-    });
-
-    $("pageContent").append(speedLabel, speed);
   }
 
   $("pagePanel").hidden = false;
@@ -120,86 +144,125 @@ function openPage(name) {
 }
 
 document.querySelectorAll("[data-page]").forEach((button) => {
-  button.addEventListener("click", () => {
-    openPage(button.dataset.page);
-  });
+  button.addEventListener("click", () => openPage(button.dataset.page));
 });
 
 $("settingsBtn").addEventListener("click", () => openPage("settings"));
 
 $("backBtn").addEventListener("click", () => {
+  stopListening();
   $("pagePanel").hidden = true;
 });
 
 function respond(command) {
-  const text = command.trim().toLowerCase();
-  if (!text) return "Please enter a command.";
+  const text = command.toLowerCase();
 
-  if (text.includes("hello") || text.includes("namaste")) {
-    return "Namaste, Commander. SHRETRONX interface is ready.";
+  if (
+    text.includes("hello") ||
+    text.includes("namaste") ||
+    text.includes("नमस्ते")
+  ) {
+    return "नमस्ते कमांडर। SHRETRONX तैयार है।";
   }
 
-  if (text.includes("status")) {
-    return "Interface active. AI and device connections are not configured yet.";
+  if (text.includes("status") || text.includes("स्थिति")) {
+    return "SHRETRONX सिस्टम सक्रिय है।";
   }
 
-  if (text.includes("time")) {
-    return "Your device time is " + new Date().toLocaleTimeString();
+  if (text.includes("time") || text.includes("समय")) {
+    return "अभी समय है " + new Date().toLocaleTimeString();
   }
 
-  if (text.includes("date")) {
-    return "Today's date is " + new Date().toLocaleDateString();
+  if (text.includes("date") || text.includes("तारीख")) {
+    return "आज की तारीख है " + new Date().toLocaleDateString();
   }
 
-  if (text.includes("help")) {
-    return "Try: hello, status, time, or date.";
+  if (text.includes("help") || text.includes("मदद")) {
+    return "आप नमस्ते, समय, तारीख या स्थिति पूछ सकते हैं।";
   }
 
-  return "Command received. This feature needs an AI connection to answer intelligently.";
+  return "आपका आदेश प्राप्त हुआ। इस सवाल के लिए AI कनेक्शन जरूरी है।";
 }
 
-function sendCommand() {
+function sendCommand(command) {
   const input = $("commandInput");
-  const result = respond(input.value);
+  const message = command || input.value;
+  const result = respond(message);
 
   $("response").textContent = result;
-  input.value = "";
 
-  if ("speechSynthesis" in window) {
-    const utterance = new SpeechSynthesisUtterance(result);
-    utterance.rate = Number(localStorage.getItem("shreySpeed") || 1);
+  if (input) input.value = "";
 
-    const voices = speechSynthesis.getVoices();
-    const selected = localStorage.getItem("shreyVoice");
-
-    if (selected !== null && selected !== "") {
-      utterance.voice = voices[Number(selected)] || null;
-    }
-
-    speechSynthesis.cancel();
-    speechSynthesis.speak(utterance);
-  }
+  speak(result);
 }
 
-$("sendBtn").addEventListener("click", sendCommand);
+$("sendBtn").addEventListener("click", () => sendCommand());
 
 $("commandInput").addEventListener("keydown", (event) => {
   if (event.key === "Enter") sendCommand();
 });
 
 $("startBtn").addEventListener("click", () => {
-  $("response").textContent =
-    "SHRETRONX initialized. Awaiting your command.";
+  $("response").textContent = "SHRETRONX initialized. Awaiting your command.";
+  speak("नमस्ते। SHRETRONX तैयार है।");
 });
 
+let recognition = null;
+
+const SpeechRecognition =
+  window.SpeechRecognition || window.webkitSpeechRecognition;
+
+function startListening() {
+  if (!SpeechRecognition) {
+    $("micStatus").textContent =
+      "Speech recognition is not supported in this browser. Try Chrome.";
+    return;
+  }
+
+  if (recognition) recognition.stop();
+
+  recognition = new SpeechRecognition();
+  recognition.lang = speechLanguage();
+  recognition.continuous = false;
+  recognition.interimResults = false;
+
+  recognition.onstart = () => {
+    $("micStatus").textContent = "Listening... Speak now.";
+  };
+
+  recognition.onresult = (event) => {
+    const command = event.results[0][0].transcript;
+    $("micStatus").textContent = "You said: " + command;
+    sendCommand(command);
+  };
+
+  recognition.onerror = (event) => {
+    $("micStatus").textContent = "Microphone error: " + event.error;
+  };
+
+  recognition.onend = () => {
+    if ($("micStatus") && $("micStatus").textContent === "Listening... Speak now.") {
+      $("micStatus").textContent = "Listening stopped.";
+    }
+  };
+
+  recognition.start();
+}
+
+function stopListening() {
+  if (recognition) {
+    recognition.stop();
+    recognition = null;
+  }
+}
+
 if ("speechSynthesis" in window) {
-  speechSynthesis.onvoiceschanged = () => {if ("serviceWorker" in navigator) {
+  speechSynthesis.onvoiceschanged = () => {};
+}
+
+if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
     navigator.serviceWorker.register("./sw.js")
-      .then(() => console.log("SHRETRONX offline support ready"))
       .catch((error) => console.error("Service worker error:", error));
   });
-}
-    // Voice list becomes available when the browser loads it.
-  };
 }
